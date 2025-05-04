@@ -1,0 +1,12 @@
+{
+  "name": "secretsapp_nodejs_express_ejs_postgre_hash_salt_commit_history",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC"
+}
