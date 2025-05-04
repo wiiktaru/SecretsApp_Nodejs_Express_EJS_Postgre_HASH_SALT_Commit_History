@@ -13,30 +13,30 @@ The main entry point of the solution is the index.js file
 
 ## Techologies used
 Front-end:
-HTML
-CSS
-JavaScript
+- HTML
+- CSS
+- JavaScript
 
 Back-end:
-Node.js
-Express (Framework)
+- Node.js
+- Express (Framework)
 
 Database:
-PostgreSQL (SQL)
+- PostgreSQL (SQL)
 
 API:
-RESTful APIs
+- RESTful APIs
 
 Authentication and Security: 
-Passport.js (Authentication)
-bcrypt (Password hashing)
-express-session (Session management)
+- Passport.js (Authentication)
+- bcrypt (Password hashing)
+- express-session (Session management)
 
 Environment variables:
-dotenv (Configuration management) 
+- dotenv (Configuration management) 
 
 Version Control:
-GitHub
+- GitHub
 
 IDE:
-Visual Studio Code
+- Visual Studio Code
