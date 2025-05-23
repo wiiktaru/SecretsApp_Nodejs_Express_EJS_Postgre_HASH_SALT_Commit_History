@@ -99,6 +99,9 @@ app.post(
   passport.authenticate("local", {
     succesRedirect: "/secrets",
     failureRedirect: "/login",
+    cookie: {
+      maxAge: 1000 * 60,
+    },
   })
 );
 
