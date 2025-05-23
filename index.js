@@ -3,6 +3,7 @@ import bodyParser from "body-parser";
 import pg from "pg";
 import env from "dotenv";
 import bcrypt from "bcrypt";
+import session from "express-session";
 
 const app = express();
 const port = 3000;
