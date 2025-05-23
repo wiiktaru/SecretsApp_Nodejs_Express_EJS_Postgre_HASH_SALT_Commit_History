@@ -146,6 +146,14 @@ passport.use(
   })
 );
 
+passport.serializeUser((user, callback) => {
+  callback(null, user);
+});
+
+passport.deserlializeUser((user, callback) => {
+  callback(null, user);
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
