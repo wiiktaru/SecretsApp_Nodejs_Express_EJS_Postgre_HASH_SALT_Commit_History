@@ -18,10 +18,10 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  const username = req.body.username;
+  const username = req.body.email;
   const password = req.body.password;
 
-  console.log("client side input for username: " + username);
+  console.log("client side input for username: " + email);
   console.log("client side input for password: " + password);
 });
 
