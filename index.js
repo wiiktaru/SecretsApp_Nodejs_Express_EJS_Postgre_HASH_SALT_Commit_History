@@ -30,11 +30,31 @@ app.get("/register", (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  const username = req.body.email;
+  const email = req.body.email;
   const password = req.body.password;
 
   console.log("client side input for username: " + email);
   console.log("client side input for password: " + password);
+
+  try {
+    const checkIfEmailExistsInDB = await db.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
+
+    if (checkIfEmailExistsInDB.rows.lengt > 0) {
+      res.send("Email already exists. Try logging in");
+    } else {
+      const result = await db.query(
+        "INSERT INTO users (email, password) VALUES ($1, $2)",
+        [email, password]
+      );
+      console.log(result);
+      res.render("secrets.ejs");
+    }
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 app.listen(port, () => {
