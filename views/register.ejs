@@ -6,6 +6,12 @@
     <title>Document</title>
   </head>
   <body>
-    <h1>This is a register page</h1>
+    <form action="/register" method="POST">
+      <label for="fname">Name</label>
+      <input type="text" id="name" name="name" /><br /><br />
+      <label for="lname">Password</label>
+      <input type="text" id="psw" name="psw" /><br /><br />
+      <input type="submit" value="Submit" />
+    </form>
   </body>
 </html>
