@@ -94,13 +94,13 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post("/login", async (req, res) => {
-  const email = req.body.email;
-  const loginPassword = req.body.password;
-
-  console.log("client side input for username: " + email);
-  console.log("client side input for password: " + loginPassword);
-});
+app.post(
+  "/login",
+  passport.authenticate("local", {
+    succesRedirect: "/secrets",
+    failureRedirect: "/login",
+  })
+);
 
 passport.use(
   new Strategy(async function verify(email, password, cb) {
