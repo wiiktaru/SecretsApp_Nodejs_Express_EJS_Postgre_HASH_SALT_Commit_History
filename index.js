@@ -51,6 +51,14 @@ app.get("/login", (req, res) => {
   res.render("login.ejs");
 });
 
+app.get("/secrets", (req, res) => {
+  if (req.isAuthenticated()) {
+    res.render("secrets.ejs");
+  } else {
+    res.redirect("/login");
+  }
+});
+
 app.post("/register", async (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -122,6 +130,8 @@ passport.use(
               // passing details of the user
               return callback(null, user);
             } else {
+              // if the password is incorrect (user error), set the user to value to false
+              // if you try to get hold of the user or check isAuthenticated it is set to false
               return callback(null, false);
             }
           }
@@ -130,6 +140,7 @@ passport.use(
         return callback("User not found");
       }
     } catch (err) {
+      // db query goes wrong
       return callback(err);
     }
   })
