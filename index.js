@@ -70,14 +70,42 @@ app.post("/register", async (req, res) => {
   }
 });
 
-app.post("/login", (req, res) => {
+app.post("/login", async (req, res) => {
   const email = req.body.email;
   const loginPassword = req.body.password;
 
   console.log("client side input for username: " + email);
   console.log("client side input for password: " + loginPassword);
 
-  res.render("secrets.ejs");
+  try {
+    const getUserInfoFromDatabase = await db.query(
+      "SELECT * FROM users WHERE email = $1",
+      [email]
+    );
+
+    if (getUserInfoFromDatabase.rows.length > 0) {
+      const user = getUserInfoFromDatabase.rows[0];
+      const storedHashedPassword = user.password;
+
+      // password comparison
+      bcrypt.compare(loginPassword, storedHashedPassword, (err, isMatch) => {
+        if (err) {
+          console.log("Error comparing passwords", err);
+        } else {
+          console.log(isMatch);
+          if (isMatch) {
+            res.render("secrets.ejs");
+          } else {
+            res.send("Incorrect password");
+          }
+        }
+      });
+    } else {
+      res.send("User not found");
+    }
+  } catch (err) {
+    console.log(err);
+  }
 });
 
 app.listen(port, () => {
