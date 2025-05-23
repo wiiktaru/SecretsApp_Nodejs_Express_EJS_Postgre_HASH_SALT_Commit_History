@@ -17,6 +17,14 @@ app.get("/register", (req, res) => {
   res.render("register.ejs");
 });
 
+app.post("/register", async (req, res) => {
+  const username = req.body.username;
+  const password = req.body.password;
+
+  console.log("client side input for username: " + username);
+  console.log("client side input for password: " + password);
+});
+
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
 });
