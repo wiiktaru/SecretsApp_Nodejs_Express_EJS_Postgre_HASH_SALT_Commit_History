@@ -24,6 +24,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 // use the public folder for static files
 app.use(express.static("public"));
 
+// new instance of a session
+app.use.session({
+  secret: process.env.PG_SECRET,
+  resave: false,
+  saveUninitialized: true,
+});
+
 app.get("/", (req, res) => {
   res.render("home.ejs");
 });
