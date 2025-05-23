@@ -80,12 +80,17 @@ app.post("/register", async (req, res) => {
         if (err) {
           console.log("Error hashing password", err);
         } else {
-          const result = await db.query(
-            "INSERT INTO users (email, password) VALUES ($1, $2)",
+          console.log("Hashed password: ", hash);
+          const newUser = await db.query(
+            "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
             [email, hash]
           );
-          console.log(result);
-          res.render("secrets.ejs");
+
+          const user = newUser.rows[0];
+          req.login(user, (err) => {
+            console.log("Success");
+            res.redirect("/secrets");
+          });
         }
       });
     }
