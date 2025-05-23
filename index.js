@@ -6,6 +6,9 @@ const port = 3000;
 
 app.use(bodyParser.urlencoded({ extended: true }));
 
+// use the public folder for static files
+app.use(express.static("public"));
+
 app.get("/", (req, res) => {
   res.render("home.ejs");
 });
