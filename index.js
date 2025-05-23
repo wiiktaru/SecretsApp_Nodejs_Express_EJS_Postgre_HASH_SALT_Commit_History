@@ -5,6 +5,7 @@ import env from "dotenv";
 import bcrypt from "bcrypt";
 import session from "express-session";
 import passport from "passport";
+import { Strategy } from "passport-local";
 
 const app = express();
 const port = 3000;
@@ -31,6 +32,12 @@ app.use.session({
   resave: false,
   saveUninitialized: true,
 });
+
+// IMPORTANT! passport module goes after the session initialization. the initialization sets up
+// the environment and context needed for secure and consistent handling of user data, which
+// the passport module depends on
+app.use(passport.initialize());
+app.use(passport.session());
 
 app.get("/", (req, res) => {
   res.render("home.ejs");
