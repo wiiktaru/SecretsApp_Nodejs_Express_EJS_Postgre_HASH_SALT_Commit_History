@@ -12,15 +12,6 @@ const port = 3000;
 const saltRounds = 10;
 env.config();
 
-const db = new pg.Client({
-  user: process.env.PG_USER,
-  host: process.env.PG_HOST,
-  database: process.env.PG_DATABASE,
-  password: process.env.PG_PASSWORD,
-  port: process.env.PG_PORT,
-});
-db.connect();
-
 app.use(bodyParser.urlencoded({ extended: true }));
 
 // use the public folder for static files
@@ -38,6 +29,15 @@ app.use.session({
 // the passport module depends on
 app.use(passport.initialize());
 app.use(passport.session());
+
+const db = new pg.Client({
+  user: process.env.PG_USER,
+  host: process.env.PG_HOST,
+  database: process.env.PG_DATABASE,
+  password: process.env.PG_PASSWORD,
+  port: process.env.PG_PORT,
+});
+db.connect();
 
 app.get("/", (req, res) => {
   res.render("home.ejs");
@@ -92,37 +92,48 @@ app.post("/login", async (req, res) => {
 
   console.log("client side input for username: " + email);
   console.log("client side input for password: " + loginPassword);
-
-  try {
-    const getUserInfoFromDatabase = await db.query(
-      "SELECT * FROM users WHERE email = $1",
-      [email]
-    );
-
-    if (getUserInfoFromDatabase.rows.length > 0) {
-      const user = getUserInfoFromDatabase.rows[0];
-      const storedHashedPassword = user.password;
-
-      // password comparison
-      bcrypt.compare(loginPassword, storedHashedPassword, (err, isMatch) => {
-        if (err) {
-          console.log("Error comparing passwords", err);
-        } else {
-          console.log(isMatch);
-          if (isMatch) {
-            res.render("secrets.ejs");
-          } else {
-            res.send("Incorrect password");
-          }
-        }
-      });
-    } else {
-      res.send("User not found");
-    }
-  } catch (err) {
-    console.log(err);
-  }
 });
+
+passport.use(
+  new Strategy(async function verify(email, password, cb) {
+    // passport can automatically, through the use of the verify function grab hold of
+    // the form data from login request
+    // passport gets triggered everytime the app authenticates a user
+    console.log(username);
+    console.log(password);
+
+    try {
+      const getUserInfoFromDatabase = await db.query(
+        "SELECT * FROM users WHERE email = $1",
+        [email]
+      );
+
+      if (getUserInfoFromDatabase.rows.length > 0) {
+        const user = getUserInfoFromDatabase.rows[0];
+        const storedHashedPassword = user.password;
+
+        // password comparison
+        bcrypt.compare(loginPassword, storedHashedPassword, (err, isMatch) => {
+          if (err) {
+            return callback(err);
+          } else {
+            if (getUserInfoFromDatabase) {
+              // password comparison was true - the callback error can be set to null
+              // passing details of the user
+              return callback(null, user);
+            } else {
+              return callback(null, false);
+            }
+          }
+        });
+      } else {
+        return callback("User not found");
+      }
+    } catch (err) {
+      return callback(err);
+    }
+  })
+);
 
 app.listen(port, () => {
   console.log(`Server running on port ${port}`);
