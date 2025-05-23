@@ -31,6 +31,10 @@ app.get("/register", (req, res) => {
   res.render("register.ejs");
 });
 
+app.get("/login", (req, res) => {
+  res.render("login.ejs");
+});
+
 app.post("/register", async (req, res) => {
   const email = req.body.email;
   const password = req.body.password;
@@ -64,6 +68,10 @@ app.post("/register", async (req, res) => {
   } catch (err) {
     console.log(err);
   }
+});
+
+app.post("/login", (req, res) => {
+  res.send("Login");
 });
 
 app.listen(port, () => {
