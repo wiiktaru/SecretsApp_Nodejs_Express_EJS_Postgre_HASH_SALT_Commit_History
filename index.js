@@ -18,11 +18,13 @@ app.use(bodyParser.urlencoded({ extended: true }));
 app.use(express.static("public"));
 
 // new instance of a session
-app.use.session({
-  secret: process.env.PG_SECRET,
-  resave: false,
-  saveUninitialized: true,
-});
+app.use(
+  session({
+    secret: process.env.PG_SECRET,
+    resave: false,
+    saveUninitialized: true,
+  })
+);
 
 // IMPORTANT! passport module goes after the session initialization. the initialization sets up
 // the environment and context needed for secure and consistent handling of user data, which
@@ -60,19 +62,19 @@ app.get("/secrets", (req, res) => {
 });
 
 app.post("/register", async (req, res) => {
-  const email = req.body.email;
+  const username = req.body.username;
   const password = req.body.password;
 
-  console.log("client side input for username: " + email);
+  console.log("client side input for username: " + username);
   console.log("client side input for password: " + password);
 
   try {
     const checkIfEmailExistsInDB = await db.query(
       "SELECT * FROM users WHERE email = $1",
-      [email]
+      [username]
     );
 
-    if (checkIfEmailExistsInDB.rows.lengt > 0) {
+    if (checkIfEmailExistsInDB.rows.length > 0) {
       res.send("Email already exists. Try logging in");
     } else {
       //Passworg hashing
@@ -83,13 +85,19 @@ app.post("/register", async (req, res) => {
           console.log("Hashed password: ", hash);
           const newUser = await db.query(
             "INSERT INTO users (email, password) VALUES ($1, $2) RETURNING *",
-            [email, hash]
+            [username, hash]
           );
 
           const user = newUser.rows[0];
+          //IMPORTANT, chooce login with lower case!
           req.login(user, (err) => {
-            console.log("Success");
-            res.redirect("/secrets");
+            if (err) {
+              console.error(err);
+              return res.redirect("/login");
+            } else {
+              console.log("Success");
+              res.redirect("/secrets");
+            }
           });
         }
       });
@@ -102,7 +110,7 @@ app.post("/register", async (req, res) => {
 app.post(
   "/login",
   passport.authenticate("local", {
-    succesRedirect: "/secrets",
+    successRedirect: "/secrets",
     failureRedirect: "/login",
     cookie: {
       maxAge: 1000 * 60,
@@ -111,17 +119,16 @@ app.post(
 );
 
 passport.use(
-  new Strategy(async function verify(email, password, cb) {
+  "local",
+  new Strategy(async function verify(username, password, cb) {
     // passport can automatically, through the use of the verify function grab hold of
     // the form data from login request
     // passport gets triggered everytime the app authenticates a user
-    console.log(username);
-    console.log(password);
 
     try {
       const getUserInfoFromDatabase = await db.query(
         "SELECT * FROM users WHERE email = $1",
-        [email]
+        [username]
       );
 
       if (getUserInfoFromDatabase.rows.length > 0) {
@@ -129,37 +136,39 @@ passport.use(
         const storedHashedPassword = user.password;
 
         // password comparison
-        bcrypt.compare(loginPassword, storedHashedPassword, (err, isMatch) => {
+        bcrypt.compare(password, storedHashedPassword, (err, valid) => {
           if (err) {
-            return callback(err);
+            console.error("Error comparing passwords", err);
+            return cb(err);
           } else {
-            if (getUserInfoFromDatabase) {
+            if (valid) {
               // password comparison was true - the callback error can be set to null
               // passing details of the user
-              return callback(null, user);
+              return cb(null, user);
             } else {
               // if the password is incorrect (user error), set the user to value to false
               // if you try to get hold of the user or check isAuthenticated it is set to false
-              return callback(null, false);
+              return cb(null, false);
             }
           }
         });
       } else {
-        return callback("User not found");
+        return cb("User not found");
       }
     } catch (err) {
       // db query goes wrong
-      return callback(err);
+      console.log(err);
+      return cb(err);
     }
   })
 );
 
-passport.serializeUser((user, callback) => {
-  callback(null, user);
+passport.serializeUser((user, cb) => {
+  cb(null, user);
 });
 
-passport.deserlializeUser((user, callback) => {
-  callback(null, user);
+passport.deserializeUser((user, cb) => {
+  cb(null, user);
 });
 
 app.listen(port, () => {
