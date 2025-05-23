@@ -71,7 +71,13 @@ app.post("/register", async (req, res) => {
 });
 
 app.post("/login", (req, res) => {
-  res.send("Login");
+  const email = req.body.email;
+  const loginPassword = req.body.password;
+
+  console.log("client side input for username: " + email);
+  console.log("client side input for password: " + loginPassword);
+
+  res.render("secrets.ejs");
 });
 
 app.listen(port, () => {
